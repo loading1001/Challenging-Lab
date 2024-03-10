@@ -1,0 +1,164 @@
+#TASK 1 & 2 work parallaly and parally you implement and finish the task 3 & 4.
+
+
+Task - 1 : Run a simple Dataflow job
+-------------------------------------------
+Simply change Dataset name  and bucket name
+-------------------------------------------
+
+bq mk DATASET_NAME
+gsutil mb gs://BUCKET_NAME
+gsutil cp gs://cloud-training/gsp323/lab.csv  . 
+gsutil cp gs://cloud-training/gsp323/lab.schema . 
+cat lab.schema
+
+-------------------------------------------------
+Next Steps: 
+1. Search for the big query in console
+2. simply click on play arrow in side pannel of bigquery you will see dataset name
+3. simply click on three dots of dataset name then click on create table
+4. switch on the schema and then check its writable or not
+5. then at top create table from -> Google cloud storage
+6. In task one starting discription their is url so select  after gs:// and copy it then go in creating table one and paste in "Select file from GCS bucket or"
+7. IN task one their is discription table in that table go to Bigquery output table and then copy only "Customers_470" (some random number will be their after customers)
+   then paste in "Table" section in create table.
+8. Copy schema from terminal which is obtained after last command execution in terminal so copy everyting in Square bracket and Square bracket also included.
+9. After that click on create
+
+10. come in console and search dataflow job.
+11. Now click create job from template then in that give any name for job name
+12. now in dataflow template section "Text Files on Cloud Storage to BigQuery" paste this without "".
+13. While pasting you have to choose "batch" option.
+14. Now wait couple of second you will mutiple parameter or section below so go in task one dicription table and copy all required given data to sections.
+15. Before clicking on run job you need to click on "show optonal parameters" in that uncheck then checked parameter(use default machine type).
+16. now in "Series" section choose the "E2" and for the machine tupe "e2-standard-2".
+17. Now click on Run
+-------------------------------------------------
+
+Task - 2 : Run a simple Dataproc job
+This has to be done mannually.
+
+------------------------------------
+Steps:
+1. Search Dataproc and open in tab then click on create cluster and choose the "cluster on compute engine".
+2. "Setup cluster" section: In that check the region its should match with your side panel(where task is given) region, if not then make changes.
+3. "Configure Node" section: choose series type is "E2" and machine type "e2-standard-2" and scroll down and do same changes in "worker node" and number of worker node must be "2".
+4. Now click on Create
+------------------------------------
+
+
+TASK 3 & TASK 4:- (Use the Google Cloud Speech-to-Text API) & (Use the Cloud Natural Language API)
+
+------------------
+Steps:
+1. Search Api and services and open in  new tab
+2. go in credential and then create crenditial and click API key.
+3. Copy API key and paste it in given command below.
+
+You will get bucket name in task 3 & 4 and paste it.
+Copy everything(command) till before "# TASK 4 BUCKET_NAME"
+------------------
+
+export API_KEY={Replace with API KEY}
+export TASK_3_BUCKET_NAME=
+export TASK_4_BUCKET_NAME=
+gcloud iam service-accounts create quicklab \
+  --display-name "my natural language service account"
+
+gcloud iam service-accounts keys create ~/key.json \
+  --iam-account quicklab@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com
+
+export GOOGLE_APPLICATION_CREDENTIALS="/home/$USER/key.json"
+
+gcloud auth activate-service-account quicklab@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+
+gcloud ml language analyze-entities --content="Old Norse texts portray Odin as one-eyed and long-bearded, frequently wielding a spear named Gungnir and wearing a cloak and a broad hat." > result.json
+
+gcloud auth login --no-launch-browser
+
+
+-----------------------------------------
+Copy token and paste it in terminal
+-----------------------------------------
+
+-----------------------------------------------------------------------------------
+Copy here till the last including "# TASK 4 BUCKET_NAME" and paste it in terminal
+----------------------------------------------------------------------------------
+
+# TASK 4 BUCKET_NAME
+gsutil cp result.json $TASK_4_BUCKET_NAME
+cat > request.json <<EOF 
+{
+  "config": {
+      "encoding":"FLAC",
+      "languageCode": "en-US"
+  },
+  "audio": {
+      "uri":"gs://cloud-training/gsp323/task3.flac"
+  }
+}
+EOF
+
+curl -s -X POST -H "Content-Type: application/json" --data-binary @request.json \
+"https://speech.googleapis.com/v1/speech:recognize?key=${API_KEY}" > result.json
+
+
+gsutil cp result.json $TASK_3_BUCKET_NAME
+
+gcloud iam service-accounts create quickstart
+
+gcloud iam service-accounts keys create key.json --iam-account quickstart@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com
+
+gcloud auth activate-service-account --key-file key.json
+
+export ACCESS_TOKEN=$(gcloud auth print-access-token)
+
+
+cat > request.json <<EOF 
+{
+   "inputUri":"gs://spls/gsp154/video/train.mp4",
+   "features": [
+       "TEXT_DETECTION"
+   ]
+}
+EOF
+
+
+
+curl -s -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer $ACCESS_TOKEN" \
+    'https://videointelligence.googleapis.com/v1/videos:annotate' \
+    -d @request.json
+
+
+
+curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $ACCESS_TOKEN" 'https://videointelligence.googleapis.com/v1/operations/OPERATION_FROM_PREVIOUS_REQUEST' > result1.json
+
+
+
+
+---------------------------------------------------------------------------------------------------------
+After that check task 3&4 completed or not then go to check "Task 2 Dataproc" completed or not.
+Step:
+1.Then go in dataproc tab if completed then click on cluster.
+2. then another interface will open then click on vm instance their you will see "ssh" option so it will take couple of second till then you go in 
+   Task 2 initial discription and copy "hdfs dfs---someting somthing was given"(do not copy closing brackets)
+3. Now go back click on ssh option and then paste copied url.
+4. then go back to datproc and click "Job" then click on "submit a Job" and their change the region according to your lab instructions.
+5. then in cluster choose already showing cluster and in Job type choose "spark".
+6. for "main class" go to task 2 discription table and copy the same.
+7. similary from task 2 discription table copy "jar file" and paste it.
+8. similary from task 2 discription table copy "arguments" and paste it and "max restart hour" must be "1".
+9. click submit (it will take few minute)
+----------------------------------------------------------------------------------------------------------------
+go to tab check "Task 1 Dataflow" 
+step:
+
+
+
+
+
+
+
+
+
